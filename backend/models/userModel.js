@@ -1,6 +1,6 @@
 let mongoose = require('mongoose');
 
-mongoose.connect('mongodb://127.0.0.1:27017/codeIDE');
+mongoose.connect('mongodb://myUser:myPassword123@mongodb/myDatabase?authSource=admin');
 
 let userSchema = new mongoose.Schema({
   name: String,
