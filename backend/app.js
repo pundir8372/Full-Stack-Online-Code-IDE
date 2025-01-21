@@ -22,6 +22,11 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(cors());
 
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'healthy' });
+});
+
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 

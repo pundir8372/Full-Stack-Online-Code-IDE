@@ -52,8 +52,7 @@ const Navbar = ({ isGridLayout, setIsGridLayout }) => {
           <Link>Contact</Link>
           <Link>Services</Link>
           <button onClick={logout} className='btnBlue !bg-red-500 min-w-[120px] ml-2 hover:!bg-red-600'>Logout</button>
-         
-
+        </div>
         <div className='dropDownNavbar hidden absolute right-[60px] top-[80px] shadow-lg shadow-black/50 p-[10px] rounded-lg bg-[#1A1919] w-[150px] h-[160px]'>
           <div className='py-[10px] border-b-[1px] border-b-[#fff]'>
             <h3 className='text-[17px]' style={{ lineHeight: 1 }}>{data ? data.name : ""}</h3>
