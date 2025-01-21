@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    image: full-stack-online-code-ide-frontend:latest
+    pull_policy: never
+    container_name: code-ide-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://backend:3000
+      - NODE_ENV=production
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - code-ide-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:5173"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    image: full-stack-online-code-ide-backend:latest
+    pull_policy: never
+    container_name: code-ide-backend
+    ports:
+      - "3000:3000"
+    environment:
+      - MONGODB_URI=mongodb://root:example@mongodb:27017/code-ide?authSource=admin
+      - JWT_SECRET=your_jwt_secret_key_here
+      - NODE_ENV=production
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - code-ide-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  mongodb:
+    image: mongo:6.0
+    container_name: code-ide-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: code-ide
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - code-ide-network
+    restart: unless-stopped
+    command: ["mongod", "--auth", "--bind_ip_all"]
+    healthcheck:
+      test: mongosh --eval "try { db.adminCommand('ping').ok } catch(e) { 0 }" --quiet --username root --password example --authenticationDatabase admin
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 120s
+
+networks:
+  code-ide-network:
+    driver: bridge
+
+volumes:
+  mongodb_data:
+    driver: local
